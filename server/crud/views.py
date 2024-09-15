@@ -11,22 +11,70 @@ def create_event(request):
     
     try:
         data = request.data
+        
+        try:
+            data['trans_id'] = validate_id_format(data['trans_id'])
+        except ValueError:
+            return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, "Invalid Transaction ID format")
+        
         serializer = EventSerializer(data=data)
         
         if serializer.is_valid():
             
             event_service = ServiceUtil.get_service(ServiceUtil.EVENT_SERVICE)
-            event = event_service.create_event(serializer.validated_data)
+            event_service.create_event(serializer.validated_data)
             
-            return to_json_response(event)
+            return to_json_response()
         
-        return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, serializer.error_messages)
+        return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, serializer.errors)
     except Exception as e:
+        print(e)
         return to_json_error_response(HTTP_500_INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_CODE, str(e))
     
 @api_view(['POST'])
 def create_events_batch(request):
-    pass
+    
+    try:
+        
+        if request.data is None:
+            return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, "No data found")
+        
+        data = request.data.get("records", [])
+        
+        if data is None or len(data) == 0:
+            return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, "No records found")
+        
+        events = []
+        for item in data:
+            for event in item["event"]:
+                
+                event_copy = item.copy()
+                event_copy.update(event)
+                
+                del event_copy["event"]
+                
+                try:
+                    event_copy['trans_id'] = validate_id_format(event_copy['trans_id'])
+                except ValueError:
+                    print("Invalid ID format")
+                
+                events.append(event_copy)
+                
+        serializer = EventSerializer(data=events, many=True)
+        
+        if serializer.is_valid():
+            
+            event_service = ServiceUtil.get_service(ServiceUtil.EVENT_SERVICE)
+            result = event_service.create_events_batch(serializer.validated_data)
+            
+            if result["added_count"] > 0:
+                return to_json_response(data=result)
+            return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, "No records added", result)
+        
+        return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, serializer.errors, events)
+    except Exception as e:
+        print(e)
+        return to_json_error_response(HTTP_500_INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_CODE, str(e))
     
 @api_view(['GET'])
 def get_events(request):
@@ -38,6 +86,7 @@ def get_events(request):
         serializer = EventSerializer(events, many=True)
         return to_json_response(serializer.data)
     except Exception as e:
+        print(e)
         return to_json_error_response(HTTP_500_INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_CODE, str(e))
 
 @api_view(['PUT'])
@@ -55,12 +104,20 @@ def update_event(request, event_id):
         if not event:
             return to_json_error_response(HTTP_400_BAD_REQUEST, NOT_FOUND_ERROR_CODE, "Event not found")
         
-        serializer = EventSerializer(event, data=request.data)
+        data = request.data
+        if 'trans_id' in data:
+            try:
+                data['trans_id'] = validate_id_format(data['trans_id'])
+            except ValueError:
+                return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, "Invalid Transaction ID format")
+        
+        serializer = EventSerializer(event, data=data)
         if serializer.is_valid():
             updated_event = event_service.update_event(event_id, serializer.validated_data)
-            return to_json_response()
-        return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, serializer.error_messages)
+            return to_json_response(data=updated_event)
+        return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, serializer.errors)
     except Exception as e:
+        print(e)
         return to_json_error_response(HTTP_500_INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_CODE, str(e))
 
 @api_view(['DELETE'])
@@ -69,6 +126,7 @@ def delete_event(request, event_id):
     try:
         event_id = validate_id_format(event_id)
     except ValueError as e:
+        print(e)
         return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, str(e))
     
     try:
@@ -81,6 +139,7 @@ def delete_event(request, event_id):
         event_service.delete_event(event_id)
         return to_json_response()
     except Exception as e:
+        print(e)
         return to_json_error_response(HTTP_500_INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_CODE, str(e))
 
 

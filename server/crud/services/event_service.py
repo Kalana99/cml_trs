@@ -11,6 +11,21 @@ class EventService:
         event = Event(**data)
         event.save()
         return event
+    
+    def create_events_batch(self, events):
+        
+        success_events = []
+        failed_events = []
+        
+        for event in events:
+            
+            try:
+                self.create_event(event)
+                success_events.append(event)
+            except Exception as e:
+                failed_events.append(event)
+                
+        return {"added": success_events, "added_count": len(success_events), "failed": failed_events, "failed_count": len(failed_events)}
 
     def update_event(self, event_id, data):
         event = Event.objects.filter(event_id=event_id).first()
