@@ -5,5 +5,5 @@ class ServiceUtil:
 
     @staticmethod
     def get_service(service_name: str):
-        app_conf = apps.get_app_config('myapp')
+        app_conf = apps.get_app_config('crud')
         return getattr(app_conf, service_name)
