@@ -66,13 +66,14 @@ REACT_APP_BACKEND_URL=http://localhost:8000
 - **Backend** (.env)
 
 ```env
-POSTGRES_DB=mydatabase
-POSTGRES_USER=myuser
-POSTGRES_PASSWORD=mypassword
-DB_HOST=db
+APP_ENV=dev
+SECRET_KEY=secret_key
+DEBUG=True
+DB_NAME=mydatabase
+DB_USER=myuser
+DB_HOST=localhost
+DB_PASSWORD=mypassword
 DB_PORT=5432
-SECRET_KEY=your_django_secret_key
-DEBUG=1
 ```
 
 ### 3. Create Dockerfiles
@@ -319,14 +320,15 @@ Each service has its own .env file. The following variables need to be configure
 
 ### Frontend (frontend/.env):
 
-`REACT_APP_BACKEND_URL`: The URL of the Django backend (e.g., `http://localhost:8000`).
+- `REACT_APP_BACKEND_URL`: The URL of the Django backend (e.g., `http://localhost:8000`).
 
 ### Backend (backend/.env):
 
-`POSTGRES_DB`: Name of the PostgreSQL database.
-`POSTGRES_USER`: PostgreSQL user.
-`POSTGRES_PASSWORD`: PostgreSQL password.
-`DB_HOST`: The hostname for the PostgreSQL database.
-`DB_PORT`: The port for the PostgreSQL database (default is 5432).
-`SECRET_KEY`: Django's secret key.
-`DEBUG`: Set to 1 for development mode.
+- `APP_ENV`: Application environment.
+- `SECRET_KEY`: Django's secret key.
+- `DEBUG`: Set to `True` for development mode.
+- `DB_NAME`: Name of the PostgreSQL database.
+- `DB_USER`: PostgreSQL user.
+- `DB_HOST`: The hostname for the PostgreSQL database.
+- `DB_PASSWORD`: PostgreSQL password.
+- `DB_PORT`: The port for the PostgreSQL database (default is 5432).
