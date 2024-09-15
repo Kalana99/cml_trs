@@ -105,6 +105,10 @@ def update_event(request, event_id):
             return to_json_error_response(HTTP_400_BAD_REQUEST, NOT_FOUND_ERROR_CODE, "Event not found")
         
         data = request.data
+        
+        if not data:
+            return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, "No data found")
+        
         if 'trans_id' in data:
             try:
                 data['trans_id'] = validate_id_format(data['trans_id'])
