@@ -60,7 +60,7 @@ Make sure both the frontend and backend .env files are properly configured. Here
 - **Frontend** (.env)
 
 ```env
-REACT_APP_BACKEND_URL=http://localhost:8000
+VITE_API_BASE_URL=http://localhost:8000
 ```
 
 - **Backend** (.env)
@@ -202,9 +202,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     env_file:
       - ./backend/.env
     networks:
@@ -320,7 +320,7 @@ Each service has its own .env file. The following variables need to be configure
 
 ### Frontend (frontend/.env):
 
-- `REACT_APP_BACKEND_URL`: The URL of the Django backend (e.g., `http://localhost:8000`).
+- `VITE_API_BASE_URL`: The URL of the Django backend (e.g., `http://localhost:8000`).
 
 ### Backend (backend/.env):
 
