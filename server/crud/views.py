@@ -3,6 +3,7 @@ from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_400_BAD_R
 from crud.serializers import EventSerializer
 from crud.utils.ServiceUtil import ServiceUtil
 from crud.utils.HttpResponseUtil import to_json_response, to_json_error_response, INTERNAL_SERVER_ERROR_CODE, VALIDATION_ERROR_CODE, NOT_FOUND_ERROR_CODE
+from crud.utils.ValidatorUtil import validate_id_format
 
 
 @api_view(['POST'])
@@ -43,6 +44,11 @@ def get_events(request):
 def update_event(request, event_id):
     
     try:
+        event_id = validate_id_format(event_id)
+    except ValueError as e:
+        return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, str(e))
+    
+    try:
         event_service = ServiceUtil.get_service(ServiceUtil.EVENT_SERVICE)
         event = event_service.get_event_by_id(event_id)
         
@@ -59,6 +65,11 @@ def update_event(request, event_id):
 
 @api_view(['DELETE'])
 def delete_event(request, event_id):
+    
+    try:
+        event_id = validate_id_format(event_id)
+    except ValueError as e:
+        return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, str(e))
     
     try:
         event_service = ServiceUtil.get_service(ServiceUtil.EVENT_SERVICE)
