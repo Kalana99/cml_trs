@@ -1,4 +1,4 @@
-# Full-Stack Web Application (React + Django + PostgreSQL)
+# Full-Stack Web Application (React + Django + PostgreSQL + Docker)
 
 This project is a full-stack web application consisting of a **React frontend**, **Django backend**, and **PostgreSQL database**. The frontend and backend source code is contained within the same GitHub repository, and both the frontend and backend have separate `.env` files for environment-specific configurations. The application is containerized using Docker and Docker Compose.
 
