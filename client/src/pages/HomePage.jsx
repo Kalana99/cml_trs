@@ -44,8 +44,21 @@ const HomePage = () => {
     const [toastMessage, setToastMessage] = useState('');
 
     const handleFetchEvents = async () => {
-        const eventList = await fetchEvents();
-        setEvents(eventList);
+        try {
+            const response = await fetchEvents();
+
+            if (response.error !== null) {
+                setToastSeverity('error');
+                setToastMessage(response.error.detail);
+            }
+            else {
+                setEvents(response.data);
+            }
+        } 
+        catch (error) {
+            setToastSeverity('error');
+            setToastMessage('Failed to fetch events. Please try again.');
+        }
     }
 
     useEffect(() => {
@@ -75,12 +88,20 @@ const HomePage = () => {
     };
 
     const confirmDeleteEvent = async () => {
-        const response = await deleteEvent(eventToDelete.event_id);
 
-        if (response) {
-            setToastSeverity('success');
-            setToastMessage('Event deleted successfully!');
-        } else {
+        try {
+            const response = await deleteEvent(eventToDelete.event_id);
+    
+            if (response.error !== null) {
+                setToastSeverity('error');
+                setToastMessage(response.error.detail);
+            } 
+            else {
+                setToastSeverity('success');
+                setToastMessage('Event deleted successfully!');
+            }
+        } 
+        catch (error) {
             setToastSeverity('error');
             setToastMessage('Failed to delete the event. Please try again.');
         }
