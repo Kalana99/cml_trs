@@ -21,23 +21,12 @@ import {
 } from '../services/api_helper';
 
 
-const DEFAULT_EVENT = {
-    event_id: '',
-    trans_id: '',
-    client_id: '',
-    trans_tms: '',
-    rc_num: '',
-    event_cnt: 1,
-    location_cd: '',
-    addr_nbr: ''
-}
-
 const HomePage = () => {
     const [openAddEventForm, setOpenAddEventForm] = useState(false);
     const [openBulkUploadForm, setOpenBulkUploadForm] = useState(false);
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
     const [showSuccessToast, setShowSuccessToast] = useState(false);
-    const [eventToEdit, setEventToEdit] = useState(DEFAULT_EVENT);
+    const [eventToEdit, setEventToEdit] = useState(null);
     const [eventToDelete, setEventToDelete] = useState(null);
     const [events, setEvents] = useState([]);
     const [toastSeverity, setToastSeverity] = useState('success');
@@ -69,7 +58,7 @@ const HomePage = () => {
     }, []);
 
     const handleAddEvent = () => {
-        setEventToEdit(DEFAULT_EVENT);
+        setEventToEdit(null);
         setOpenAddEventForm(true);
     };
 
