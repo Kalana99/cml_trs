@@ -106,6 +106,7 @@ const HomePage = () => {
                 setToastMessage(toastSuccessMessage);
                 setShowSuccessToast(true);
                 setOpenAddEventForm(false);
+                setEventToEdit(null);
                 await handleFetchEvents();
             }
         }
