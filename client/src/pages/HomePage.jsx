@@ -22,6 +22,7 @@ import {
 
 
 const HomePage = () => {
+
     const [openAddEventForm, setOpenAddEventForm] = useState(false);
     const [openBulkUploadForm, setOpenBulkUploadForm] = useState(false);
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
@@ -33,6 +34,7 @@ const HomePage = () => {
     const [toastMessage, setToastMessage] = useState('');
 
     const handleFetchEvents = async () => {
+
         try {
             const response = await fetchEvents();
 
@@ -51,9 +53,11 @@ const HomePage = () => {
     }
 
     useEffect(() => {
+
         const loadEvents = async () => {
             await handleFetchEvents();
         };
+
         loadEvents();
     }, []);
 
@@ -74,6 +78,42 @@ const HomePage = () => {
     const handleDeleteEvent = (event) => {
         setEventToDelete(event);
         setOpenConfirmDialog(true);
+    };
+
+    const submitEvent = async (event) => {
+
+        try {
+
+            let response = null
+            let toastSuccessMessage = ''
+
+            if (eventToEdit) {
+                response = await updateEvent(eventToEdit.event_id, event);
+                toastSuccessMessage = 'Event updated successfully!';
+            }
+            else{
+                response = await addEvent(event);
+                toastSuccessMessage = 'Event added successfully!';
+            }
+
+            if (response.error !== null) {
+                setToastSeverity('error');
+                setToastMessage(response.error.detail);
+                setShowSuccessToast(true);
+            }
+            else {
+                setToastSeverity('success');
+                setToastMessage(toastSuccessMessage);
+                setShowSuccessToast(true);
+                setOpenAddEventForm(false);
+                await handleFetchEvents();
+            }
+        }
+        catch (error) {
+            setToastSeverity('error');
+            setToastMessage('Failed to add the event. Please try again.');
+            setShowSuccessToast(true);
+        }
     };
 
     const confirmDeleteEvent = async () => {
@@ -146,7 +186,7 @@ const HomePage = () => {
                 onClose={() => setOpenAddEventForm(false)}
                 eventToEdit={eventToEdit}
                 setEventToEdit={setEventToEdit}
-                onSubmit={() => setShowSuccessToast(true)}
+                onSubmit={submitEvent}
             />
 
             <BulkUploadForm
