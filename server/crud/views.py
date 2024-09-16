@@ -10,7 +10,7 @@ from crud.utils.ValidatorUtil import validate_id_format
 def create_event(request):
     
     try:
-        data = request.data
+        data = request.data.copy()
         
         try:
             data['trans_id'] = validate_id_format(data['trans_id'])
@@ -35,11 +35,12 @@ def create_event(request):
 def create_events_batch(request):
     
     try:
+        data = request.data.copy()
         
-        if request.data is None:
+        if data is None:
             return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, "No data found")
         
-        data = request.data.get("records", [])
+        data = data.get("records", [])
         
         if data is None or len(data) == 0:
             return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, "No records found")
@@ -104,7 +105,7 @@ def update_event(request, event_id):
         if not event:
             return to_json_error_response(HTTP_400_BAD_REQUEST, NOT_FOUND_ERROR_CODE, "Event not found")
         
-        data = request.data
+        data = request.data.copy()
         
         if not data:
             return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, "No data found")
@@ -118,7 +119,7 @@ def update_event(request, event_id):
         serializer = EventSerializer(event, data=data)
         if serializer.is_valid():
             updated_event = event_service.update_event(event_id, serializer.validated_data)
-            return to_json_response(data=updated_event)
+            return to_json_response(data=EventSerializer(updated_event).data)
         return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, serializer.errors)
     except Exception as e:
         print(e)
