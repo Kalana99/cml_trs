@@ -4,6 +4,7 @@ from crud.serializers import EventSerializer
 from crud.utils.ServiceUtil import ServiceUtil
 from crud.utils.HttpResponseUtil import to_json_response, to_json_error_response, INTERNAL_SERVER_ERROR_CODE, VALIDATION_ERROR_CODE, NOT_FOUND_ERROR_CODE
 from crud.utils.ValidatorUtil import validate_id_format
+from crud.utils.DateTimeUtil import convert_to_iso
 
 
 @api_view(['POST'])
@@ -56,6 +57,7 @@ def create_events_batch(request):
                 
                 try:
                     event_copy['trans_id'] = validate_id_format(event_copy['trans_id'])
+                    event_copy['trans_tms'] = convert_to_iso(event_copy['trans_tms'])
                 except ValueError:
                     print("Invalid ID format")
                 
@@ -146,7 +148,28 @@ def delete_event(request, event_id):
     except Exception as e:
         print(e)
         return to_json_error_response(HTTP_500_INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_CODE, str(e))
-
+    
+# def querydict_to_dict(querydict):
+    
+#     data = {}
+    
+#     for key, value in querydict.lists():
+        
+#         keys = key.split('[')
+#         d = data
+        
+#         for k in keys[:-1]:
+            
+#             k = k.rstrip(']')
+            
+#             if k not in d:
+#                 d[k] = {}
+                
+#             d = d[k]
+            
+#         d[keys[-1].rstrip(']')] = value[0] if len(value) == 1 else value
+        
+#     return data
 
 # def background_task(to_email):
 #     scan_all_webclients()
