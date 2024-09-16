@@ -24,6 +24,18 @@ export const addEvent = async (eventData) => {
     }
 };
 
+export const addEventBulk = async (eventData) => {
+    
+    try {
+        const response = await api.post('api/create-events-batch/', eventData);
+        return response.data;
+    } 
+    catch (error) {
+        console.error('[api_helper - addEventBulk] Error adding event bulk: ', error);
+        throw error;
+    }
+};
+
 export const updateEvent = async (eventId, eventData) => {
     
     try {

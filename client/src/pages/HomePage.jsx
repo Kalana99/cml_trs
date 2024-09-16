@@ -16,6 +16,7 @@ import Toast from '../components/Toast';
 import {
     fetchEvents,
     addEvent,
+    addEventBulk,
     updateEvent,
     deleteEvent
 } from '../services/api_helper';
@@ -117,6 +118,43 @@ const HomePage = () => {
         }
     };
 
+    const submitEventBulk = async (events) => {
+        
+        try {
+            const response = await addEventBulk(events);
+            
+            if (response.error !== null) {
+                setToastSeverity('error');
+                setToastMessage(response.error.detail);
+                setShowSuccessToast(true);
+            }
+            else if (response.data.added_count === 0) {
+                setToastSeverity('error');
+                setToastMessage('Failed to add events. Please try again.');
+                setShowSuccessToast(true);
+            }
+            else if (response.data.failed_count > 0) {
+                setToastSeverity('warning');
+                setToastMessage(`Added events: ${response.data.added_count}. Failed events: ${response.data.failed_count}. Please check the data and try again.`);
+                setShowSuccessToast(true);
+                setOpenBulkUploadForm(false);
+                await handleFetchEvents();
+            }
+            else {
+                setToastSeverity('success');
+                setToastMessage(`${response.data.added_count} Events added successfully!`);
+                setShowSuccessToast(true);
+                setOpenBulkUploadForm(false);
+                await handleFetchEvents();
+            }
+        }
+        catch (error) {
+            setToastSeverity('error');
+            setToastMessage('Failed to add the events. Please try again.');
+            setShowSuccessToast(true);
+        }
+    };
+
     const confirmDeleteEvent = async () => {
 
         try {
@@ -192,6 +230,7 @@ const HomePage = () => {
 
             <BulkUploadForm
                 open={openBulkUploadForm}
+                onSubmit={submitEventBulk}
                 onClose={() => setOpenBulkUploadForm(false)}
             />
 
