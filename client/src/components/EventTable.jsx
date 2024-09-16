@@ -39,20 +39,22 @@ const EventTable = ({ events, handleEditEvent, handleDeleteEvent }) => {
     };
 
     return (
-        <TableContainer sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #cecece' }}>
+        <TableContainer sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #cecece', marginBottom: '30px' }}>
             <Table>
                 <TableHead>
-                    <TableRow>
-                        <TableCell>#</TableCell>
-                        <TableCell>Event ID</TableCell>
-                        <TableCell>Transaction ID</TableCell>
-                        <TableCell>Client ID</TableCell>
-                        <TableCell>Timestamp</TableCell>
-                        <TableCell>RC Number</TableCell>
-                        <TableCell>Event Count</TableCell>
-                        <TableCell>Location Code</TableCell>
-                        <TableCell>Address Number</TableCell>
-                        <TableCell align="right">Actions</TableCell>
+                    <TableRow sx={{ backgroundColor: 'black' }}>
+                        <TableCell sx={{ color: 'white' }}>#</TableCell>
+                        <TableCell sx={{ color: 'white' }}>Event ID</TableCell>
+                        <TableCell sx={{ color: 'white' }}>Transaction ID</TableCell>
+                        <TableCell sx={{ color: 'white' }}>Client ID</TableCell>
+                        <TableCell sx={{ color: 'white' }}>Timestamp</TableCell>
+                        <TableCell sx={{ color: 'white' }}>RC Number</TableCell>
+                        <TableCell sx={{ color: 'white' }}>Event Count</TableCell>
+                        <TableCell sx={{ color: 'white' }}>Location Code</TableCell>
+                        <TableCell sx={{ color: 'white' }}>Address Number</TableCell>
+                        <TableCell sx={{ color: 'white' }}>Location ID 1</TableCell>
+                        <TableCell sx={{ color: 'white' }}>Location ID 2</TableCell>
+                        <TableCell sx={{ color: 'white' }} align="right">Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -68,7 +70,9 @@ const EventTable = ({ events, handleEditEvent, handleDeleteEvent }) => {
                             <TableCell>{event.rc_num}</TableCell>
                             <TableCell>{event.event_cnt}</TableCell>
                             <TableCell>{event.location_cd}</TableCell>
-                            <TableCell>{event.addr_nbr}</TableCell>
+                            <TableCell>{event.addr_nbr ? event.addr_nbr : "-"}</TableCell>
+                            <TableCell>{event.location_id1 ? event.location_id1 : "-"}</TableCell>
+                            <TableCell>{event.location_id2 ? event.location_id2 : "-"}</TableCell>
                             <TableCell align="right">
                                 <IconButton onClick={(e) => handleOpenMenu(e, event)}>
                                     <MoreVertIcon />
