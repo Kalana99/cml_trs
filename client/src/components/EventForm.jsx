@@ -10,7 +10,7 @@ import {
     Typography
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { validate as isValidUUID } from 'uuid'; // For generating UUID
+import { validate as isValidUUID } from 'uuid';
 
 
 const formatDateTimeLocal = (dateString) => {
@@ -37,11 +37,13 @@ const DEFAULT_EVENT = {
 }
 
 const EventForm = ({ open, onClose, eventToEdit, onSubmit, backendErrors }) => {
+
     const [formValues, setFormValues] = useState(DEFAULT_EVENT);
     const [errors, setErrors] = useState({});
-    const [formChanged, setFormChanged] = useState(false); // Track if any field has changed
+    const [formChanged, setFormChanged] = useState(false);
 
     useEffect(() => {
+
         if (eventToEdit) {
             setFormValues({
                 ...eventToEdit,
@@ -50,64 +52,45 @@ const EventForm = ({ open, onClose, eventToEdit, onSubmit, backendErrors }) => {
         }
     }, [eventToEdit]);
 
-    // Utility function to check if form is empty (for add case)
-    const validateFormForAdd = () => {
+    const validateForm = () => {
+
         const newErrors = {};
+
         if (!formValues.trans_id || !isValidUUID(formValues.trans_id)) newErrors.trans_id = 'Transaction ID is required and should be a UUID.';
         if (!formValues.client_id) newErrors.client_id = 'Client ID is required.';
         if (!formValues.trans_tms) newErrors.trans_tms = 'Timestamp is required.';
         if (!formValues.rc_num) newErrors.rc_num = 'RC Number is required.';
         if (!formValues.event_cnt || formValues.event_cnt < 1) newErrors.event_cnt = 'Event Count must be at least 1.';
         if (!formValues.location_cd) newErrors.location_cd = 'Location Code is required.';
+
         return newErrors;
     };
 
-    // Utility function to validate form changes (for edit case)
-    const validateFormForEdit = () => {
-        const newErrors = {};
-
-        // Check if any field has changed
-        const changedFields = Object.keys(formValues).some(key => formValues[key] !== eventToEdit[key]);
-
-        // If trans_id has changed, validate its format
-        if (formValues.trans_id !== eventToEdit.trans_id && !isValidUUID(formValues.trans_id)) {
-            newErrors.trans_id = 'Transaction ID should be a valid UUID.';
-        }
-
-        // Return errors if any, otherwise check if no fields have changed
-        return Object.keys(newErrors).length === 0
-            ? (changedFields ? {} : { form: 'No fields have changed.' })
-            : newErrors;
-    };
-
     const handleInputChange = (e) => {
+
         const { name, value } = e.target;
+
         setFormValues({ ...formValues, [name]: value });
         setFormChanged(true);
     };
 
     const handleSubmit = () => {
-        let newErrors = {};
-        if (eventToEdit) {
-            // Editing an event
-            newErrors = validateFormForEdit();
-        } else {
-            // Adding a new event
-            newErrors = validateFormForAdd();
-        }
 
-        // If no errors, submit the form
+        let newErrors = {};
+        newErrors = validateForm();
+
         if (Object.keys(newErrors).length === 0) {
             onSubmit(formValues);
-            onClose();
         } else {
             setErrors(newErrors);
         }
     };
 
     const handleClose = () => {
+
         setFormValues(DEFAULT_EVENT);
         setErrors({});
+
         onClose();
     };
 
