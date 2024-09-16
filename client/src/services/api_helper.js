@@ -15,7 +15,7 @@ export const fetchEvents = async () => {
 export const addEvent = async (eventData) => {
     
     try {
-        const response = await api.post('api/add-event/', eventData);
+        const response = await api.post('api/create-event/', eventData);
         return response.data;
     } 
     catch (error) {
@@ -27,7 +27,7 @@ export const addEvent = async (eventData) => {
 export const updateEvent = async (eventId, eventData) => {
     
     try {
-        const response = await api.put(`api/update-event/${eventId}`, eventData);
+        const response = await api.put(`api/update-event/${eventId}/`, eventData);
         return response.data;
     } 
     catch (error) {
@@ -39,7 +39,7 @@ export const updateEvent = async (eventId, eventData) => {
 export const deleteEvent = async (eventId) => {
 
     try {
-        const response = api.delete(`api/delete-event/${eventId}`);
+        const response = api.delete(`api/delete-event/${eventId}/`);
         return response.data;
     } 
     catch (error) {
