@@ -2,6 +2,88 @@ import React, { useCallback, useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Box } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 
+
+const SAMPLE_JSON = JSON.stringify({
+	"batch_id": "0310abf6-d1f5-a1b3-8fb0-36fe934b1f28",
+    "records": [
+     { 
+		"trans_id": "0000abf8-d1f5-4536-8fb0-36fe934b1f28",
+		"trans_tms": "20151022102011927EDT",
+		"rc_num": "10002",
+		"client_id": "RPS-00001",
+		"event": [
+			{
+				"event_cnt": 1,
+				"location_cd": "DESTINATION",
+				"location_id1": "T8C",
+				"location_id2": "1J7",
+				"addr_nbr": "0000000001"
+			},
+			{
+				"event_cnt": 1,
+				"location_cd": "CUSTOMER NUMBER",
+				"location_id1": "0007316971"
+			},
+			{
+				"event_cnt": 1,
+				"location_cd": "OUTLET ID",
+				"location_id1": "I029"
+			}
+		]
+	},
+	{ 
+		"trans_id": "0000abf8-d1f5-4536-8fb0-36fe934b1f28",
+		"trans_tms": "20151022102011927EDT",
+		"rc_num": "10002",
+		"client_id": "RPS-00001",
+		"event": [
+			{
+				"event_cnt": 1,
+				"location_cd": "DESTINATION",
+				"location_id1": "T8C",
+				"location_id2": "1J7",
+				"addr_nbr": "0000000001"
+			},
+			{
+				"event_cnt": 1,
+				"location_cd": "CUSTOMER NUMBER",
+				"location_id1": "0007316971"
+			},
+			{
+				"event_cnt": 1,
+				"location_cd": "OUTLET ID",
+				"location_id1": "I029"
+			}
+		]
+	},
+	{ 
+		"trans_id": "0000abf8-d1f5-4536-8fb0-36fe934b1f28",
+		"trans_tms": "20151022102011927EDT",
+		"rc_num": "10002",
+		"client_id": "RPS-00001",
+		"event": [
+			{
+				"event_cnt": 1,
+				"location_cd": "DESTINATION",
+				"location_id1": "T8C",
+				"location_id2": "1J7",
+				"addr_nbr": "0000000001"
+			},
+			{
+				"event_cnt": 1,
+				"location_cd": "CUSTOMER NUMBER",
+				"location_id1": "0007316971"
+			},
+			{
+				"event_cnt": 1,
+				"location_cd": "OUTLET ID",
+				"location_id1": "I029"
+			}
+		]
+	}
+	]	
+}, null, 4);
+
 const BulkUploadForm = ({ open, onSubmit, onClose }) => {
 
     const [fileContent, setFileContent] = useState(null);
@@ -25,7 +107,7 @@ const BulkUploadForm = ({ open, onSubmit, onClose }) => {
                     setFileContent(jsonContent);
                     setFileName(file.name);
                     setError('');
-                } 
+                }
                 catch (e) {
                     setError('Invalid JSON file.');
                     setFileContent(null);
@@ -54,10 +136,20 @@ const BulkUploadForm = ({ open, onSubmit, onClose }) => {
         if (fileContent) {
             onSubmit(fileContent);
             handleClose();
-        } 
+        }
         else {
             setError('Please upload a valid JSON file.');
         }
+    };
+
+    const downloadSampleJson = () => {
+        const blob = new Blob([SAMPLE_JSON], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'sample-template.json';
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     return (
@@ -95,6 +187,15 @@ const BulkUploadForm = ({ open, onSubmit, onClose }) => {
                         {error}
                     </Typography>
                 )}
+
+                <Button
+                    onClick={downloadSampleJson}
+                    variant="contained"
+                    color="secondary"
+                    sx={{ mt: 2 }}
+                >
+                    Download Sample File
+                </Button>
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose} color="primary">Cancel</Button>
