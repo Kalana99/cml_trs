@@ -144,7 +144,7 @@ def delete_event(request, event_id):
             to_json_error_response(HTTP_400_BAD_REQUEST, NOT_FOUND_ERROR_CODE, "Event not found")
             
         event_service.delete_event(event_id)
-        return to_json_response()
+        return to_json_response(data=EventSerializer(event).data)
     except Exception as e:
         print(e)
         return to_json_error_response(HTTP_500_INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_CODE, str(e))

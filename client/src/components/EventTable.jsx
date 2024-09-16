@@ -39,11 +39,11 @@ const EventTable = ({ events, handleEditEvent, handleDeleteEvent }) => {
     };
 
     return (
-        <TableContainer sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #cecece', marginBottom: '30px' }}>
+        <TableContainer sx={{ borderRadius: 2, overflowX: 'auto', border: '1px solid #cecece', marginBottom: '30px' }}>
             <Table>
                 <TableHead>
                     <TableRow sx={{ backgroundColor: 'black' }}>
-                        <TableCell sx={{ color: 'white' }}>#</TableCell>
+                    <TableCell sx={{ color: 'white', position: 'sticky', left: 0, background: 'black', zIndex: 2 }}>#</TableCell>
                         <TableCell sx={{ color: 'white' }}>Event ID</TableCell>
                         <TableCell sx={{ color: 'white' }}>Transaction ID</TableCell>
                         <TableCell sx={{ color: 'white' }}>Client ID</TableCell>
@@ -54,13 +54,13 @@ const EventTable = ({ events, handleEditEvent, handleDeleteEvent }) => {
                         <TableCell sx={{ color: 'white' }}>Address Number</TableCell>
                         <TableCell sx={{ color: 'white' }}>Location ID 1</TableCell>
                         <TableCell sx={{ color: 'white' }}>Location ID 2</TableCell>
-                        <TableCell sx={{ color: 'white' }} align="right">Actions</TableCell>
+                        <TableCell sx={{ color: 'white', position: 'sticky', right: 0, background: 'black', zIndex: 2 }} align="right">Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {events.map((event, index) => (
                         <TableRow key={event.event_id}>
-                            <TableCell>{index + 1}</TableCell>
+                            <TableCell sx={{ position: 'sticky', left: 0, background: 'white', zIndex: 1 }}>{index + 1}</TableCell>
                             <TableCell>{event.event_id}</TableCell>
                             <TableCell>{event.trans_id}</TableCell>
                             <TableCell>{event.client_id}</TableCell>
@@ -73,7 +73,7 @@ const EventTable = ({ events, handleEditEvent, handleDeleteEvent }) => {
                             <TableCell>{event.addr_nbr ? event.addr_nbr : "-"}</TableCell>
                             <TableCell>{event.location_id1 ? event.location_id1 : "-"}</TableCell>
                             <TableCell>{event.location_id2 ? event.location_id2 : "-"}</TableCell>
-                            <TableCell align="right">
+                            <TableCell align="right" sx={{ position: 'sticky', right: 0, background: 'white', zIndex: 1 }}>
                                 <IconButton onClick={(e) => handleOpenMenu(e, event)}>
                                     <MoreVertIcon />
                                 </IconButton>

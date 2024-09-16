@@ -167,6 +167,7 @@ const HomePage = () => {
             else {
                 setToastSeverity('success');
                 setToastMessage('Event deleted successfully!');
+                await handleFetchEvents();
             }
         } 
         catch (error) {
@@ -179,7 +180,7 @@ const HomePage = () => {
     };
 
     return (
-        <Container sx={{ marginTop: '70px' }}>
+        <Container sx={{ marginTop: '70px', maxWidth: '100%' }}>
             <Box
                 display="flex"
                 justifyContent="space-between"

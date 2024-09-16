@@ -51,7 +51,7 @@ export const updateEvent = async (eventId, eventData) => {
 export const deleteEvent = async (eventId) => {
 
     try {
-        const response = api.delete(`api/delete-event/${eventId}/`);
+        const response = await api.delete(`api/delete-event/${eventId}/`);
         return response.data;
     } 
     catch (error) {
