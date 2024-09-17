@@ -117,7 +117,7 @@ CMD ["nginx", "-g", "daemon off;"]
 - **Backend Dockerfile** (server/Dockerfile):
 
 ```dockerfile
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -132,6 +132,11 @@ RUN pip install -r requirements.txt
 
 # Copy the application code
 COPY . /app/
+
+# Copy environment file
+COPY .env /app/.env
+
+RUN python manage.py collectstatic --noinput
 
 # Expose the port
 EXPOSE 8000
@@ -149,14 +154,32 @@ server {
     listen 80;
     server_name localhost;
 
+    # Root directory for serving the React build files
     location / {
         root /usr/share/nginx/html;
         try_files $uri /index.html;
     }
 
+    # Custom error pages for HTTP error codes
     error_page 500 502 503 504 /50x.html;
     location = /50x.html {
         root /usr/share/nginx/html;
+    }
+
+    # Enable Gzip compression for text-based resources
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_min_length 256;
+
+    # Security headers
+    add_header X-Content-Type-Options nosniff;
+    add_header X-Frame-Options SAMEORIGIN;
+    add_header X-XSS-Protection "1; mode=block";
+
+    # Caching for static files (JavaScript, CSS, images)
+    location ~* \.(js|css|png|jpg|jpeg|gif|svg|ico)$ {
+        expires 7d;
+        add_header Cache-Control "public";
     }
 }
 ```
@@ -166,8 +189,6 @@ server {
 Create docker-compose.yml at the root of your project.
 
 ```yaml
-version: '3'
-
 services:
   client:
     build:
@@ -180,11 +201,16 @@ services:
       - server
     networks:
       - my-network
+    volumes:
+      - ./client/nginx.conf:/etc/nginx/conf.d/default.conf  # Make sure the Nginx config is copied if customized
 
   server:
     build:
       context: ./server
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      bash -c "python manage.py migrate &&
+               python manage.py collectstatic --noinput &&
+               python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./server:/app
     ports:
@@ -198,12 +224,15 @@ services:
 
   db:
     image: postgres:13
+    container_name: postgres_db
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: cml
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1232
+    ports:
+      - "5432:5432"
     env_file:
       - ./server/.env
     networks:
