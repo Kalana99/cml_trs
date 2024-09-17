@@ -1,11 +1,34 @@
 from rest_framework.decorators import api_view
 from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_400_BAD_REQUEST
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from crud.serializers import EventSerializer
 from crud.utils.ServiceUtil import ServiceUtil
 from crud.utils.HttpResponseUtil import to_json_response, to_json_error_response, INTERNAL_SERVER_ERROR_CODE, VALIDATION_ERROR_CODE, NOT_FOUND_ERROR_CODE
 from crud.utils.ValidatorUtil import validate_id_format
 from crud.utils.DateTimeUtil import convert_to_iso
 
+MAX_WORKERS = 5
+
+def process_event(item, event):
+
+    event_copy = item.copy()
+    event_copy.update(event)
+
+    del event_copy["event"]
+
+    try:
+        event_copy['trans_id'] = validate_id_format(event_copy['trans_id'])
+    except ValueError as e:
+        print(f'Error validating ID: {e}')
+        return None
+    
+    try:
+        event_copy['trans_tms'] = convert_to_iso(event_copy['trans_tms'])
+    except Exception as e:
+        print(f'Error converting date: {e}')
+        return None
+        
+    return event_copy
 
 @api_view(['POST'])
 def create_event(request):
@@ -34,47 +57,53 @@ def create_event(request):
     
 @api_view(['POST'])
 def create_events_batch(request):
-    
     try:
         data = request.data.copy()
-        
-        if data is None:
+
+        if not data:
             return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, "No data found")
-        
-        data = data.get("records", [])
-        
-        if data is None or len(data) == 0:
+
+        records = data.get("records", [])
+
+        if not records:
             return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, "No records found")
-        
+
         events = []
-        for item in data:
-            for event in item["event"]:
-                
-                event_copy = item.copy()
-                event_copy.update(event)
-                
-                del event_copy["event"]
-                
-                try:
-                    event_copy['trans_id'] = validate_id_format(event_copy['trans_id'])
-                    event_copy['trans_tms'] = convert_to_iso(event_copy['trans_tms'])
-                except ValueError:
-                    print("Invalid ID format")
-                
-                events.append(event_copy)
-                
+        failed_events = []
+
+        # Parallel processing of events using ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+            futures = []
+            for item in records:
+                for event in item["event"]:
+                    futures.append(executor.submit(process_event, item, event))
+
+            # Collect the results as they complete
+            for future in as_completed(futures):
+                event_copy = future.result()
+                if event_copy:
+                    events.append(event_copy)
+                else:
+                    failed_events.append(event_copy)
+
+        # If all events failed, return error
+        if not events:
+            return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, "No valid records to process")
+
+        # Serialize the valid events
         serializer = EventSerializer(data=events, many=True)
-        
+
         if serializer.is_valid():
-            
             event_service = ServiceUtil.get_service(ServiceUtil.EVENT_SERVICE)
             result = event_service.create_events_batch(serializer.validated_data)
-            
+
             if result["added_count"] > 0:
                 return to_json_response(data=result)
+
             return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, "No records added", result)
-        
+
         return to_json_error_response(HTTP_400_BAD_REQUEST, VALIDATION_ERROR_CODE, serializer.errors, events)
+
     except Exception as e:
         print(e)
         return to_json_error_response(HTTP_500_INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_CODE, str(e))
@@ -148,40 +177,3 @@ def delete_event(request, event_id):
     except Exception as e:
         print(e)
         return to_json_error_response(HTTP_500_INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_CODE, str(e))
-    
-# def querydict_to_dict(querydict):
-    
-#     data = {}
-    
-#     for key, value in querydict.lists():
-        
-#         keys = key.split('[')
-#         d = data
-        
-#         for k in keys[:-1]:
-            
-#             k = k.rstrip(']')
-            
-#             if k not in d:
-#                 d[k] = {}
-                
-#             d = d[k]
-            
-#         d[keys[-1].rstrip(']')] = value[0] if len(value) == 1 else value
-        
-#     return data
-
-# def background_task(to_email):
-#     scan_all_webclients()
-#     send_email_all_websites_change(to_email)
-
-
-# @api_view(['GET'])
-# def website_content(request):
-#     to_email = request.query_params.get('to_email')
-
-#     # Create a Thread to run the background_task function
-#     thread = Thread(target=background_task, args=(to_email,))
-#     thread.start()  # Start the thread
-    
-#     return Response({"message": "Ok"})
