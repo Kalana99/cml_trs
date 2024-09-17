@@ -11,7 +11,7 @@ class EventServiceTest(TestCase):
         self.test_event = Event.objects.create(
             event_id=uuid4(),
             trans_id=uuid4(),
-            trans_tms="2024-09-14T10:20:30Z",
+            trans_tms="2015-10-22 10:20:11.927+05:30",
             rc_num="10002",
             client_id="RPS-00001",
             event_cnt=1,
@@ -21,7 +21,7 @@ class EventServiceTest(TestCase):
         self.valid_event = {
             "event_id": uuid4(),
             "trans_id": uuid4(),
-            "trans_tms": "2024-09-14T10:20:30Z",
+            "trans_tms": "2015-10-22 10:20:11.927+05:30",
             "rc_num": "10002",
             "client_id": "RPS-00001",
             "event_cnt": 1,
@@ -51,7 +51,7 @@ class EventServiceTest(TestCase):
         data = {
             "event_id": uuid4(),
             "trans_id": uuid4(),
-            "trans_tms": "2024-09-14T10:20:30Z",
+            "trans_tms": "2015-10-22 10:20:11.927+05:30",
             "rc_num": "10003",
             "client_id": "RPS-00002",
             "event_cnt": 1,
