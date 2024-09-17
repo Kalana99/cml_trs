@@ -10,7 +10,7 @@ class EventAPITestCase(APITestCase):
         self.event = Event.objects.create(
             event_id=uuid4(),
             trans_id=uuid4(),
-            trans_tms="2024-09-14T10:20:30Z",
+            trans_tms="2015-10-22 10:20:11.927+05:30",
             rc_num="10002",
             client_id="RPS-00001",
             event_cnt=1,
@@ -27,7 +27,7 @@ class EventAPITestCase(APITestCase):
         data = {
             "event_id": str(uuid4()),
             "trans_id": str(uuid4()),
-            "trans_tms": "2024-09-14T10:20:30Z",
+            "trans_tms": "2015-10-22 10:20:11.927+05:30",
             "rc_num": "10003",
             "client_id": "RPS-00002",
             "event_cnt": 1,
@@ -46,7 +46,7 @@ class EventAPITestCase(APITestCase):
     def test_update_event(self):
         update_data = {
             "trans_id": str(uuid4()),
-            "trans_tms": "2024-09-14T10:20:30Z",
+            "trans_tms": "2015-10-22 10:20:11.927+05:30",
             "rc_num": "10004",
             "client_id": "RPS-00003",
             "event_cnt": 1,
@@ -69,7 +69,7 @@ class EventAPITestCase(APITestCase):
             "records": [
                 {
                     "trans_id": str(uuid4()),
-                    "trans_tms": "2024-09-14T10:20:30Z",
+                    "trans_tms": "20151022102011927EDT",
                     "rc_num": "10002",
                     "client_id": "RPS-00001",
                     "event": [
@@ -84,7 +84,7 @@ class EventAPITestCase(APITestCase):
                 },
                 {
                     "trans_id": str(uuid4()),
-                    "trans_tms": "2024-09-14T11:20:30Z",
+                    "trans_tms": "20151022102011927EDT",
                     "rc_num": "10003",
                     "client_id": "RPS-00002",
                     "event": [
@@ -92,6 +92,13 @@ class EventAPITestCase(APITestCase):
                             "event_cnt": 1,
                             "location_cd": "OUTLET ID",
                             "location_id1": "I029"
+                        },
+                        {
+                            "event_cnt": 1,
+                            "location_cd": "DESTINATION",
+                            "location_id1": "T8C",
+                            "location_id2": "1J7",
+                            "addr_nbr": "0000000001"
                         }
                     ]
                 }
@@ -104,7 +111,7 @@ class EventAPITestCase(APITestCase):
         # Check if the request was successful
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('added_count', response.data['data'])
-        self.assertEqual(response.data['data']['added_count'], 2)
+        self.assertEqual(response.data['data']['added_count'], 3)
 
     def test_create_events_batch_no_records(self):
         # Invalid payload (no records)
@@ -124,7 +131,7 @@ class EventAPITestCase(APITestCase):
             "records": [
                 {
                     "trans_id": "invalid_uuid",  # Invalid UUID format
-                    "trans_tms": "2024-09-14T10:20:30Z",
+                    "trans_tms": "20151022102011927EDT",
                     "rc_num": "10002",
                     "client_id": "RPS-00001",
                     "event": [
@@ -145,7 +152,7 @@ class EventAPITestCase(APITestCase):
         
         # Check that it returns HTTP 400 for validation error
         self.assertEqual(response.data['error']['code'], VALIDATION_ERROR_CODE)
-        self.assertIn('Must Be A Valid Uuid.', response.data['error']['detail'][0]['trans_id'][0].title())
+        self.assertIn('No valid records to process', response.data['error']['detail'])
 
     def test_create_events_batch_serializer_error(self):
         # Payload with missing required fields (client_id)
@@ -153,7 +160,7 @@ class EventAPITestCase(APITestCase):
             "records": [
                 {
                     "trans_id": str(uuid4()),
-                    "trans_tms": "2024-09-14T10:20:30Z",
+                    "trans_tms": "20151022102011927EDT",
                     "rc_num": "10002",
                     # "client_id": "RPS-00001",  # Missing client_id
                     "event": [
