@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
-
 import {
     Container,
     Typography,
     Box,
     Button
 } from '@mui/material';
-
 import EventTable from '../components/EventTable';
 import EventForm from '../components/EventForm';
 import BulkUploadForm from '../components/BulkUploadForm';
@@ -20,7 +18,21 @@ import {
     updateEvent,
     deleteEvent
 } from '../services/api_helper';
+import { formatDateTimeLocal } from '../utils/utils';
 
+
+const DEFAULT_EVENT = {
+    event_id: '',
+    trans_id: '',
+    client_id: '',
+    trans_tms: formatDateTimeLocal(new Date()),
+    rc_num: '',
+    event_cnt: 1,
+    location_cd: '',
+    addr_nbr: '',
+    location_id1: '',
+    location_id2: '',
+}
 
 const HomePage = () => {
 
@@ -28,6 +40,7 @@ const HomePage = () => {
     const [openBulkUploadForm, setOpenBulkUploadForm] = useState(false);
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
     const [showSuccessToast, setShowSuccessToast] = useState(false);
+    const [isFormAdd, setIsFormAdd] = useState(true);
     const [eventToEdit, setEventToEdit] = useState(null);
     const [eventToDelete, setEventToDelete] = useState(null);
     const [events, setEvents] = useState([]);
@@ -63,7 +76,8 @@ const HomePage = () => {
     }, []);
 
     const handleAddEvent = () => {
-        setEventToEdit(null);
+        setIsFormAdd(true);
+        setEventToEdit(DEFAULT_EVENT);
         setOpenAddEventForm(true);
     };
 
@@ -72,6 +86,7 @@ const HomePage = () => {
     };
 
     const handleEditEvent = (event) => {
+        setIsFormAdd(false);
         setEventToEdit(event);
         setOpenAddEventForm(true);
     };
@@ -84,11 +99,10 @@ const HomePage = () => {
     const submitEvent = async (event) => {
 
         try {
-
             let response = null
             let toastSuccessMessage = ''
 
-            if (eventToEdit) {
+            if (!isFormAdd) {
                 response = await updateEvent(eventToEdit.event_id, event);
                 toastSuccessMessage = 'Event updated successfully!';
             }
@@ -227,6 +241,8 @@ const HomePage = () => {
                 eventToEdit={eventToEdit}
                 setEventToEdit={setEventToEdit}
                 onSubmit={submitEvent}
+                formatDateTimeLocal={formatDateTimeLocal}
+                isFormAdd={isFormAdd}
             />
 
             <BulkUploadForm

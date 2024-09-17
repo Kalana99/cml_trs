@@ -11,17 +11,8 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { validate as isValidUUID } from 'uuid';
+import { formatDateTimeLocal } from '../utils/utils';
 
-
-const formatDateTimeLocal = (dateString) => {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-};
 
 const DEFAULT_EVENT = {
     event_id: '',
@@ -36,7 +27,7 @@ const DEFAULT_EVENT = {
     location_id2: '',
 }
 
-const EventForm = ({ open, onClose, eventToEdit, onSubmit, backendErrors }) => {
+const EventForm = ({ open, onClose, eventToEdit, onSubmit, formatDateTimeLocal, isFormAdd, backendErrors }) => {
 
     const [formValues, setFormValues] = useState(DEFAULT_EVENT);
     const [errors, setErrors] = useState({});
@@ -81,7 +72,8 @@ const EventForm = ({ open, onClose, eventToEdit, onSubmit, backendErrors }) => {
 
         if (Object.keys(newErrors).length === 0) {
             onSubmit(formValues);
-        } else {
+        } 
+        else {
             setErrors(newErrors);
         }
     };
@@ -217,7 +209,7 @@ const EventForm = ({ open, onClose, eventToEdit, onSubmit, backendErrors }) => {
             <DialogActions>
                 <Button onClick={handleClose} color="primary">Cancel</Button>
                 <Button onClick={handleSubmit} color="primary" disabled={!formChanged}>
-                    {eventToEdit ? 'Update' : 'Add'}
+                    {isFormAdd ? 'Add' : 'Update'}
                 </Button>
             </DialogActions>
         </Dialog>
