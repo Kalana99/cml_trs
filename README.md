@@ -10,7 +10,7 @@ This project is a full-stack web application consisting of a **React frontend**,
   - [Running with Docker](#running-with-docker)
   - [Running without Docker](#running-without-docker)
 - [Environment Variables](#environment-variables)
-- [License](#license)
+- [Testing](#testing)
 
 ---
 
@@ -36,7 +36,6 @@ The application follows a **client-server architecture** where the frontend (Rea
 - **Docker & Docker Compose** (Containerization)
 - **Nginx** (Frontend web server)
 - **Python** (Backend language)
-- **Node.js** (Frontend environment)
 
 ---
 
@@ -49,7 +48,7 @@ To run the entire system with Docker and Docker Compose, follow the steps below:
 #### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/your-repo.git
+git clone https://github.com/Kalana99/cml_trs.git
 cd your-repo
 ```
 
@@ -80,7 +79,7 @@ DB_PORT=5432
 
 Create Dockerfile for the frontend and backend.
 
-- **Frontend Dockerfile** (frontend/Dockerfile):
+- **Frontend Dockerfile** (client/Dockerfile):
 
 ```dockerfile
 # Stage 1: Build the frontend
@@ -103,7 +102,7 @@ FROM nginx:alpine
 RUN rm -rf /usr/share/nginx/html/*
 
 # Copy the React build from the previous stage
-COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copy Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
@@ -115,7 +114,7 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-- **Backend Dockerfile** (backend/Dockerfile):
+- **Backend Dockerfile** (server/Dockerfile):
 
 ```dockerfile
 FROM python:3.10-slim
@@ -170,28 +169,28 @@ Create docker-compose.yml at the root of your project.
 version: '3'
 
 services:
-  frontend:
+  client:
     build:
-      context: ./frontend
+      context: ./client
     ports:
       - "3000:80"
     env_file:
-      - ./frontend/.env
+      - ./client/.env
     depends_on:
-      - backend
+      - server
     networks:
       - my-network
 
-  backend:
+  server:
     build:
-      context: ./backend
+      context: ./server
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - ./backend:/app
+      - ./server:/app
     ports:
       - "8000:8000"
     env_file:
-      - ./backend/.env
+      - ./server/.env
     depends_on:
       - db
     networks:
@@ -206,7 +205,7 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     env_file:
-      - ./backend/.env
+      - ./server/.env
     networks:
       - my-network
 
@@ -258,14 +257,14 @@ You will need to install the dependencies for both the frontend and backend.
 Navigate to the frontend directory and install the necessary Node.js packages:
 
 ```bash
-cd frontend
+cd client
 npm install
 ```
 
 To run the React development server:
 
 ```bash
-npm start
+npm run dev
 ```
 
 The React frontend will now be accessible at [http://localhost:3000].
@@ -275,9 +274,9 @@ The React frontend will now be accessible at [http://localhost:3000].
 Navigate to the backend directory and create a virtual environment:
 
 ```bash
-cd backend
+cd server
 python -m venv env
-source env/bin/activate   # On Windows, use `env\Scripts\activate`
+env\Scripts\activate
 ```
 
 Install the Python dependencies from the requirements.txt file:
@@ -332,3 +331,11 @@ Each service has its own .env file. The following variables need to be configure
 - `DB_HOST`: The hostname for the PostgreSQL database.
 - `DB_PASSWORD`: PostgreSQL password.
 - `DB_PORT`: The port for the PostgreSQL database (default is 5432).
+
+## Testing
+
+```bash
+cd server
+env\Scripts\activate
+python manage.py test
+```
