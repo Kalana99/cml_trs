@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -13,6 +13,9 @@ RUN pip install -r requirements.txt
 
 # Copy the application code
 COPY . /app/
+
+# Copy environment file
+COPY .env /app/.env
 
 # Expose the port
 EXPOSE 8000
